@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Web Games Portal</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        p.subtitle {
+            color: #8b949e;
+            font-size: 0.95rem;
+        }
+        
+        /* Game Selection Menu Styling */
+        .game-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            max-width: 960px;
+            margin-bottom: 20px;
+            padding: 12px;
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            width: 100%;
+        }
+        .game-btn {
+            background-color: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            padding: 10px 18px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .game-btn:hover {
+            background-color: #30363d;
+            color: #ffffff;
+        }
+        .game-btn.active {
+            background-color: #2ea043;
+            color: #ffffff;
+            border-color: #3fb950;
+        }
+
+        /* Player Controls Styling */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 960px;
+            margin-bottom: 12px;
+        }
+        .current-game-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #58a6ff;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            background-color: #2ea043;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background-color: #3fb950;
+        }
+        .btn-secondary {
+            background-color: #30363d;
+        }
+        .btn-secondary:hover {
+            background-color: #484f58;
+        }
+
+        /* Game Window Styling */
+        .game-wrapper {
+            width: 100%;
+            max-width: 960px;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border: 2px solid #30363d;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>My Game Arcade</h1>
+        <p class="subtitle">Select a game below to start playing</p>
+    </header>
+
+    <!-- ================================================================= -->
+    <!-- GAME LIST SECTION: Add or remove your game buttons inside this div -->
+    <!-- ================================================================= -->
+    <div class="game-list">
+
+        <!-- GAME 1 (Default active game on page load) -->
+        <button class="game-btn active" onclick="loadGame('./game1.html', 'Space Shooter', this)">
+            Space Shooter
+        </button>
+
+        <!-- ============================================================= -->
+        <!-- [START COPY] Copy everything from here to [END COPY] below    -->
+        <!-- to add a new game button to your portal:                      -->
+        <!-- 1. Change './game2.html' to your new game's file path         -->
+        <!-- 2. Change 'Puzzle Quest' (in both places!) to your game name  -->
+        <!-- ============================================================= -->
+        <button class="game-btn" onclick="loadGame('./game2.html', 'Puzzle Quest', this)">
+            Puzzle Quest
+        </button>
+        <!-- [END COPY] ================================================== -->
+
+
+        <!-- EXAMPLE OF A 3RD GAME (Inside a subfolder) -->
+        <button class="game-btn" onclick="loadGame('./retro-folder/index.html', 'Retro Platformer', this)">
+            Retro Platformer
+        </button>
+
+        <!-- PASTE YOUR NEW GAME BUTTONS RIGHT BELOW THIS LINE -->
+
+
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- PLAYER CONTROLS & EMBEDDED WINDOW                                 -->
+    <!-- Make sure the default href and iframe src below match GAME 1      -->
+    <!-- ================================================================= -->
+    <div class="controls">
+        <span class="current-game-title" id="game-title">Now Playing: Space Shooter</span>
+        <div class="action-buttons">
+            <button class="btn" onclick="toggleFullscreen()">Fullscreen</button>
+            <!-- Set initial href to match your 1st game's path -->
+            <a class="btn btn-secondary" id="direct-link" href="./game1.html" target="_blank">Open Game Directly</a>
+        </div>
+    </div>
+
+    <div class="game-wrapper" id="game-container">
+        <!-- Set initial src to match your 1st game's path -->
+        <iframe id="game-frame" src="./game1.html" allowfullscreen></iframe>
+    </div>
+
+    <script>
+        // Function that switches games when you click a button in the list
+        function loadGame(gameUrl, gameName, clickedButton) {
+            // 1. Update the iframe source to load the new game
+            document.getElementById('game-frame').src = gameUrl;
+            
+            // 2. Update the "Open Game Directly" button link
+            document.getElementById('direct-link').href = gameUrl;
+            
+            // 3. Update the "Now Playing" text
+            document.getElementById('game-title').textContent = 'Now Playing: ' + gameName;
+
+            // 4. Highlight the selected game button in green
+            const allButtons = document.querySelectorAll('.game-btn');
+            allButtons.forEach(btn => btn.classList.remove('active'));
+            clickedButton.classList.add('active');
+        }
+
+        // Function to make the game window fullscreen
+        function toggleFullscreen() {
+            const container = document.getElementById('game-container');
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => {
+                    alert(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+    </script>
+
+</body>
+</html>
