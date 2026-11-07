@@ -124,6 +124,56 @@
             height: 100%;
             border: none;
         }
+        /* Positions the close button inside the game container */
+.game-wrapper {
+    position: relative;
+}
+
+/* Locks the game to the full phone/desktop screen until X is clicked */
+.game-wrapper.fullscreen-mode {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100dvh; /* Adapts to mobile browser address bars */
+    max-width: none;
+    aspect-ratio: auto;
+    z-index: 9999;
+    border: none;
+    border-radius: 0;
+}
+
+/* Floating 'X' button (hidden until fullscreen is active) */
+.exit-fs-btn {
+    display: none;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    background-color: rgba(0, 0, 0, 0.75);
+    color: #ffffff;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 1;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+}
+
+.exit-fs-btn:hover, .exit-fs-btn:active {
+    background-color: #da3633;
+    border-color: #ffffff;
+}
+
+/* Reveal the 'X' button only when in fullscreen mode */
+.game-wrapper.fullscreen-mode .exit-fs-btn {
+    display: flex;
+}
     </style>
 </head>
 <body>
@@ -162,15 +212,17 @@
     <div class="controls">
         <span class="current-game-title" id="game-title">Now Playing: Slot Game</span>
         <div class="action-buttons">
-            <button class="btn" onclick="toggleFullscreen()">Fullscreen</button>
+            <button class="btn" onclick="enterFullscreen()">Fullscreen</button>
             <!-- Set initial href to match your 1st game's path -->
             <a class="btn btn-secondary" id="direct-link" href="./slotgame.html" target="_blank">Open Game Directly</a>
         </div>
     </div>
 
     <div class="game-wrapper" id="game-container">
+        <!-- Only this X button will exit fullscreen -->
+        <button class="exit-fs-btn" onclick="exitFullscreen()" aria-label="Exit Fullscreen">✕</button>
         <!-- Set initial src to match your 1st game's path -->
-        <iframe id="game-frame" src="./slotgame.html" allowfullscreen></iframe>
+        <iframe id="game-frame" src="./game1.html" allowfullscreen></iframe>
     </div>
 
     <script>
@@ -202,6 +254,33 @@
                 document.exitFullscreen();
             }
         }
+
+        // Enters fullscreen when the green "Fullscreen" button is clicked
+function enterFullscreen() {
+    const container = document.getElementById('game-container');
+    container.classList.add('fullscreen-mode');
+    document.body.style.overflow = 'hidden'; // Prevents background scrolling on phones
+
+    // Also request native fullscreen on Android/Desktop if supported
+    if (container.requestFullscreen) {
+        container.requestFullscreen().catch(() => {});
+    } else if (container.webkitRequestFullscreen) {
+        container.webkitRequestFullscreen();
+    }
+}
+
+// Exits fullscreen ONLY when the floating 'X' button is clicked
+function exitFullscreen() {
+    const container = document.getElementById('game-container');
+    container.classList.remove('fullscreen-mode');
+    document.body.style.overflow = '';
+
+    if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+    } else if (document.webkitFullscreenElement && document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+    }
+}
     </script>
 
 </body>
