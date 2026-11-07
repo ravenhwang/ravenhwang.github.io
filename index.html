@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>My Web Games Portal</title>
     <style>
         * {
@@ -73,6 +73,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
             width: 100%;
             max-width: 960px;
             margin-bottom: 12px;
@@ -110,6 +112,7 @@
 
         /* Game Window Styling */
         .game-wrapper {
+            position: relative;
             width: 100%;
             max-width: 960px;
             aspect-ratio: 16 / 9;
@@ -119,61 +122,64 @@
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
+
+        /* Locks the game to the full phone/desktop screen until X is clicked */
+        .game-wrapper.fullscreen-mode {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            max-width: none !important;
+            aspect-ratio: unset !important;
+            z-index: 99999 !important;
+            border: none !important;
+            border-radius: 0 !important;
+        }
+
         iframe {
+            position: relative;
+            z-index: 1;
             width: 100%;
             height: 100%;
             border: none;
         }
-        /* Positions the close button inside the game container */
-.game-wrapper {
-    position: relative;
-}
 
-/* Locks the game to the full phone/desktop screen until X is clicked */
-.game-wrapper.fullscreen-mode {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100dvh; /* Adapts to mobile browser address bars */
-    max-width: none;
-    aspect-ratio: auto;
-    z-index: 9999;
-    border: none;
-    border-radius: 0;
-}
+        /* Floating 'X' button (hidden until fullscreen is active) */
+        .exit-fs-btn {
+            display: none;
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 100000; /* Always sits above the iframe */
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            font-size: 20px;
+            font-weight: bold;
+            line-height: 1;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-/* Floating 'X' button (hidden until fullscreen is active) */
-.exit-fs-btn {
-    display: none;
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    z-index: 10000;
-    background-color: rgba(0, 0, 0, 0.75);
-    color: #ffffff;
-    border: 2px solid rgba(255, 255, 255, 0.6);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-    font-weight: bold;
-    line-height: 1;
-    cursor: pointer;
-    align-items: center;
-    justify-content: center;
-    touch-action: manipulation;
-}
+        .exit-fs-btn:hover, .exit-fs-btn:active {
+            background-color: #da3633;
+            border-color: #ffffff;
+        }
 
-.exit-fs-btn:hover, .exit-fs-btn:active {
-    background-color: #da3633;
-    border-color: #ffffff;
-}
-
-/* Reveal the 'X' button only when in fullscreen mode */
-.game-wrapper.fullscreen-mode .exit-fs-btn {
-    display: flex;
-}
+        /* Reveal the 'X' button only when in fullscreen mode */
+        .game-wrapper.fullscreen-mode .exit-fs-btn {
+            display: flex;
+        }
     </style>
 </head>
 <body>
@@ -191,96 +197,70 @@
         <!-- ============================================================= -->
         <!-- [START COPY] Copy everything from here to [END COPY] below    -->
         <!-- to add a new game button to your portal:                      -->
-        <!-- 1. Change './game2.html' to your new game's file path         -->
-        <!-- 2. Change 'Puzzle Quest' (in both places!) to your game name  -->
+        <!-- 1. Change './slotgame.html' to your new game's file path      -->
+        <!-- 2. Change 'Slot Game' (in both places!) to your game name     -->
+        <!-- (Note: Remove 'active' from the class on your 2nd/3rd games)  -->
         <!-- ============================================================= -->
-        <button class="game-btn" onclick="loadGame('./slotgame.html', 'Slot Game', this)">
+        <button class="game-btn active" onclick="loadGame('./slotgame.html', 'Slot Game', this)">
             Slot Game
         </button>
         <!-- [END COPY] ================================================== -->
 
-
         <!-- PASTE YOUR NEW GAME BUTTONS RIGHT BELOW THIS LINE -->
-
 
     </div>
 
     <!-- ================================================================= -->
     <!-- PLAYER CONTROLS & EMBEDDED WINDOW                                 -->
-    <!-- Make sure the default href and iframe src below match GAME 1      -->
     <!-- ================================================================= -->
     <div class="controls">
         <span class="current-game-title" id="game-title">Now Playing: Slot Game</span>
         <div class="action-buttons">
-            <button class="btn" onclick="enterFullscreen()">Fullscreen</button>
-            <!-- Set initial href to match your 1st game's path -->
+            <button type="button" class="btn" onclick="enterFullscreen()">Fullscreen</button>
             <a class="btn btn-secondary" id="direct-link" href="./slotgame.html" target="_blank">Open Game Directly</a>
         </div>
     </div>
 
     <div class="game-wrapper" id="game-container">
-        <!-- Only this X button will exit fullscreen -->
-        <button class="exit-fs-btn" onclick="exitFullscreen()" aria-label="Exit Fullscreen">✕</button>
-        <!-- Set initial src to match your 1st game's path -->
-        <iframe id="game-frame" src="./game1.html" allowfullscreen></iframe>
+        <!-- Floating X button to exit fullscreen -->
+        <button type="button" class="exit-fs-btn" id="exit-btn" onclick="exitFullscreen()" aria-label="Exit Fullscreen">✕</button>
+        
+        <!-- FIXED: Changed src from ./game1.html to ./slotgame.html so it loads at launch -->
+        <iframe id="game-frame" src="./slotgame.html" allowfullscreen></iframe>
     </div>
 
     <script>
-        // Function that switches games when you click a button in the list
+        // Switches games when you click a button in the list
         function loadGame(gameUrl, gameName, clickedButton) {
-            // 1. Update the iframe source to load the new game
             document.getElementById('game-frame').src = gameUrl;
-            
-            // 2. Update the "Open Game Directly" button link
             document.getElementById('direct-link').href = gameUrl;
-            
-            // 3. Update the "Now Playing" text
             document.getElementById('game-title').textContent = 'Now Playing: ' + gameName;
 
-            // 4. Highlight the selected game button in green
             const allButtons = document.querySelectorAll('.game-btn');
             allButtons.forEach(btn => btn.classList.remove('active'));
             clickedButton.classList.add('active');
         }
 
-        // Function to make the game window fullscreen
-        function toggleFullscreen() {
+        // Enters locked fullscreen when the green "Fullscreen" button is clicked
+        function enterFullscreen() {
             const container = document.getElementById('game-container');
-            if (!document.fullscreenElement) {
-                container.requestFullscreen().catch(err => {
-                    alert(`Error attempting to enable fullscreen: ${err.message}`);
-                });
-            } else {
-                document.exitFullscreen();
-            }
+            container.classList.add('fullscreen-mode');
+            document.body.style.overflow = 'hidden';
         }
 
-        // Enters fullscreen when the green "Fullscreen" button is clicked
-function enterFullscreen() {
-    const container = document.getElementById('game-container');
-    container.classList.add('fullscreen-mode');
-    document.body.style.overflow = 'hidden'; // Prevents background scrolling on phones
+        // Exits fullscreen ONLY when the floating 'X' button is clicked/tapped
+        function exitFullscreen() {
+            const container = document.getElementById('game-container');
+            container.classList.remove('fullscreen-mode');
+            document.body.style.overflow = '';
 
-    // Also request native fullscreen on Android/Desktop if supported
-    if (container.requestFullscreen) {
-        container.requestFullscreen().catch(() => {});
-    } else if (container.webkitRequestFullscreen) {
-        container.webkitRequestFullscreen();
-    }
-}
-
-// Exits fullscreen ONLY when the floating 'X' button is clicked
-function exitFullscreen() {
-    const container = document.getElementById('game-container');
-    container.classList.remove('fullscreen-mode');
-    document.body.style.overflow = '';
-
-    if (document.fullscreenElement && document.exitFullscreen) {
-        document.exitFullscreen().catch(() => {});
-    } else if (document.webkitFullscreenElement && document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
-    }
-}
+            // Fallback in case the browser or iframe triggered native fullscreen
+            if (document.fullscreenElement && document.exitFullscreen) {
+                document.exitFullscreen().catch(() => {});
+            } else if (document.webkitFullscreenElement && document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            }
+        }
     </script>
 
 </body>
